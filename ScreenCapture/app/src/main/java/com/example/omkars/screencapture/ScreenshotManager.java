@@ -4,17 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
-import android.hardware.display.VirtualDisplay;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.util.DisplayMetrics;
-import android.view.Surface;
 
-import java.security.PublicKey;
-
-import static android.R.attr.width;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 
 /**
@@ -56,13 +51,17 @@ public class ScreenshotManager {
     imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 1);
 
     mediaProjection = getMediaProjectionManager().getMediaProjection(resultCode, resultIntent);
-    mediaProjection.createVirtualDisplay("screenshot", width, width, screenDensity,
+    mediaProjection.createVirtualDisplay("screenshot", screenWidth, screenHeight, screenDensity,
         flags,
         imageReader.getSurface(),
         null, null);
   }
 
   public void stopCapturing(){
+    if (!isCapturing()) {
+      throw new IllegalStateException("Call startCapturing() first");
+    }
+
     imageReader.close();
     imageReader = null;
 
@@ -71,7 +70,7 @@ public class ScreenshotManager {
   }
 
 
-  public boolean canCapture() {
+  public boolean isCapturing() {
     return null != mediaProjection;
   }
 
@@ -79,7 +78,7 @@ public class ScreenshotManager {
    * Call {@link Image#close()} on previously captured image before calling this.
    */
   public Image captureScreenShot() {
-    if (!canCapture()) {
+    if (!isCapturing()) {
       throw new IllegalStateException("Call startCapturing() first");
     }
     return imageReader.acquireLatestImage();

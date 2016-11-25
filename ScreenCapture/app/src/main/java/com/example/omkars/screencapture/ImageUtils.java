@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-/**
- * Created by omkars on 24/11/16.
- */
 public class ImageUtils {
 
   public static void saveImageAsJpeg(Image image, OutputStream outputStream) {

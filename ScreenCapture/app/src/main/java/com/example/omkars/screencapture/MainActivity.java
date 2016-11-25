@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -15,11 +14,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import static android.R.attr.bitmap;
-import static android.R.attr.data;
-import static android.R.attr.width;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public void start(View v) {
-    if(!screenshotManager.canCapture()) {
+    if(!screenshotManager.isCapturing()) {
       Intent startCapturingIntent = screenshotManager.getStartCapturingIntent();
       startActivityForResult(startCapturingIntent, 10);
     }
@@ -75,11 +69,17 @@ public class MainActivity extends AppCompatActivity {
 
     FileInputStream inputStream = null;
     try {
-      File fileStreamPath = this.getFileStreamPath(fileName);
-      inputStream = new FileInputStream(fileStreamPath);
+      File screenshotFile = this.getFileStreamPath(fileName);
+      inputStream = new FileInputStream(screenshotFile);
 //      inputStream = openFileInput(fileName);
       Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
       imageView.setImageBitmap(bitmap);
+
+
+
+      UploadManager uploadManager = new UploadManager(this);
+      uploadManager.uploadFile(screenshotFile);
+
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
